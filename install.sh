@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# ⚡ JARVIS-UI — Animated Universal Installer
+# ⚡ JARVIS-UI — Universal Animated Installer
+# Compatible with macOS, Linux, Ubuntu, WSL
+# Supports both:
+# 1. curl -fsSL https://raw.githubusercontent.com/thedileepkumar-dk/Jarvis-UI/main/install.sh | bash
+# 2. Local execution: bash install.sh
 # ==============================================================================
 
 set -e
 
 REPO_URL="https://github.com/thedileepkumar-dk/Jarvis-UI.git"
-DEFAULT_INSTALL_DIR="${HOME}/Documents/Jarvis-UI"
 SKILL_NAME="Jarvis-UI"
 
-# Colors & Formatting
+# Terminal Formatting
 ESC="\033"
 C_RESET="${ESC}[0m"
 C_BOLD="${ESC}[1m"
@@ -21,16 +24,42 @@ C_YELLOW="${ESC}[38;2;245;158;11m"
 C_WHITE="${ESC}[38;2;255;255;255m"
 C_MUTED="${ESC}[38;2;148;163;184m"
 
-# TTY detection for animated spinners
+# TTY detection
 IS_TTY=false
 if [ -t 1 ]; then
   IS_TTY=true
 fi
 
-# Cursor controls
 hide_cursor() { if $IS_TTY; then printf "${ESC}[?25l"; fi; }
 show_cursor() { if $IS_TTY; then printf "${ESC}[?25h"; fi; }
 trap show_cursor EXIT
+
+# Universal Source Directory Resolver
+# Checks for existing installation, ~/Documents (macOS), or standard ~/.jarvis-ui (Linux/WSL)
+if [ -n "${BASH_SOURCE[0]}" ] && [ -f "${BASH_SOURCE[0]}" ]; then
+  SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+else
+  # Piped from curl: determine best destination path for current user
+  if [ -d "${HOME}/Documents/Jarvis-UI/.git" ]; then
+    SOURCE_DIR="${HOME}/Documents/Jarvis-UI"
+  elif [ -d "${HOME}/.jarvis-ui/.git" ]; then
+    SOURCE_DIR="${HOME}/.jarvis-ui"
+  elif [ -d "${HOME}/Documents" ]; then
+    SOURCE_DIR="${HOME}/Documents/Jarvis-UI"
+  else
+    SOURCE_DIR="${HOME}/.jarvis-ui"
+  fi
+
+  if [ ! -d "${SOURCE_DIR}/.git" ]; then
+    mkdir -p "$(dirname "${SOURCE_DIR}")"
+    git clone --quiet "${REPO_URL}" "${SOURCE_DIR}"
+  else
+    git -C "${SOURCE_DIR}" pull --quiet 2>/dev/null || true
+  fi
+fi
+
+# Tilde-abbreviated path for universal display across all OS environments
+DISPLAY_SOURCE="${SOURCE_DIR/#$HOME/~}"
 
 # Animated Spinner Helper
 spin_task() {
@@ -39,33 +68,30 @@ spin_task() {
   local frames=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
   
   if ! $IS_TTY; then
-    printf "  ${C_PURPLE}●${C_RESET} %-40s " "${label}"
+    printf "  ${C_PURPLE}●${C_RESET} %-36s " "${label}"
     $action_fn >/dev/null 2>&1
     printf "${C_GREEN}✔ Done${C_RESET}\n"
     return 0
   fi
 
   hide_cursor
-  # Run action in background
   $action_fn >/dev/null 2>&1 &
   local pid=$!
 
   local i=0
   while kill -0 $pid 2>/dev/null; do
     local frame="${frames[$((i % 10))]}"
-    printf "\r  ${C_PURPLE}${frame}${C_RESET} ${C_WHITE}%-40s${C_RESET}" "${label}"
+    printf "\r  ${C_PURPLE}${frame}${C_RESET} ${C_WHITE}%-36s${C_RESET}" "${label}"
     i=$((i + 1))
     sleep 0.06
   done
 
   wait $pid
-  printf "\r  ${C_GREEN}✔${C_RESET} ${C_WHITE}%-40s${C_RESET} ${C_GREEN}configured${C_RESET}\n" "${label}"
+  printf "\r  ${C_GREEN}✔${C_RESET} ${C_WHITE}%-36s${C_RESET} ${C_GREEN}configured${C_RESET}\n" "${label}"
   show_cursor
 }
 
-# Animated Progress Bar
 draw_progress() {
-  local duration=0.4
   local steps=24
   local delay=0.015
 
@@ -81,30 +107,16 @@ draw_progress() {
   show_cursor
 }
 
-# Resolve source directory
-if [ -n "${BASH_SOURCE[0]}" ] && [ -f "${BASH_SOURCE[0]}" ]; then
-  SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-else
-  SOURCE_DIR="${DEFAULT_INSTALL_DIR}"
-  if [ ! -d "${SOURCE_DIR}/.git" ] && [ ! -f "${SOURCE_DIR}/SKILL.md" ]; then
-    mkdir -p "$(dirname "${SOURCE_DIR}")"
-    git clone --quiet "${REPO_URL}" "${SOURCE_DIR}"
-  else
-    git -C "${SOURCE_DIR}" pull --quiet 2>/dev/null || true
-  fi
-fi
-
-# Print Sleek High-Tech Header
 print_header() {
   echo ""
   echo -e "  ${C_PURPLE}╭─────────────────────────────────────────────────────────────────╮${C_RESET}"
   echo -e "  ${C_PURPLE}│${C_RESET}  ${C_BOLD}${C_WHITE}⚡ JARVIS-UI${C_RESET}  ${C_MUTED}•${C_RESET}  ${C_CYAN}Universal Kinetic Frontend Framework${C_RESET}          ${C_PURPLE}│${C_RESET}"
   echo -e "  ${C_PURPLE}│${C_RESET}  ${C_DIM}Autonomous UI Design & Animation Systems for AI Coding Agents${C_RESET}  ${C_PURPLE}│${C_RESET}"
   echo -e "  ${C_PURPLE}╰─────────────────────────────────────────────────────────────────╯${C_RESET}"
-  echo -e "  ${C_MUTED}Source:${C_RESET} ${C_DIM}${SOURCE_DIR}${C_RESET}\n"
+  echo -e "  ${C_MUTED}Location:${C_RESET} ${C_CYAN}${DISPLAY_SOURCE}${C_RESET}\n"
 }
 
-# Installation functions for each environment
+# Target Installers
 do_codex() {
   mkdir -p "${HOME}/.codex/skills"
   rm -rf "${HOME}/.codex/skills/${SKILL_NAME}"
@@ -131,13 +143,13 @@ do_gemini() {
 
 do_cursor() {
   mkdir -p "${HOME}/.cursor/rules"
-  cat << 'RULE' > "${HOME}/.cursor/rules/Jarvis-UI.mdc"
+  cat << RULE > "${HOME}/.cursor/rules/Jarvis-UI.mdc"
 ---
 description: Jarvis-UI Kinetic Frontend Framework. Apply when building animated, modern web frontends, SaaS landing pages, interactive cockpits, and micro-animations.
 globs: **/*.{html,css,js,jsx,ts,tsx,vue,svelte}
 ---
 Always follow the Jarvis-UI skill guidelines located at:
-~/Documents/Jarvis-UI/SKILL.md
+${DISPLAY_SOURCE}/SKILL.md
 
 Key Architecture Rules:
 1. Volumetric lighting and atmospheric glow plumes (no plain flat backgrounds).
@@ -158,39 +170,37 @@ SCRIPT
   chmod +x "${HOME}/.local/bin/jarvis-ui-install"
 }
 
-# Main Execution Flow
 print_header
 
 TARGET="${1:-all}"
 
 case "${TARGET}" in
   --codex|codex)
-    spin_task "Codex Skill Integration" do_codex
+    spin_task "Codex (~/.codex/skills)" do_codex
     ;;
   --claude|claude)
-    spin_task "Claude Skill Integration" do_claude
+    spin_task "Claude (~/.claude/skills)" do_claude
     ;;
   --opencode|opencode)
-    spin_task "OpenCode Skill Integration" do_opencode
+    spin_task "OpenCode (~/.config/opencode)" do_opencode
     ;;
   --gemini|gemini|antigravity)
-    spin_task "Antigravity / Gemini Integration" do_gemini
+    spin_task "Antigravity (~/.gemini/config)" do_gemini
     ;;
   --cursor|cursor)
-    spin_task "Cursor Rule Configuration" do_cursor
+    spin_task "Cursor Rule (~/.cursor/rules)" do_cursor
     ;;
   --all|all)
-    spin_task "Codex (${HOME}/.codex/skills)" do_codex
-    spin_task "Claude (${HOME}/.claude/skills)" do_claude
-    spin_task "OpenCode (~/.config/opencode/skills)" do_opencode
-    spin_task "Antigravity (~/.gemini/config/skills)" do_gemini
+    spin_task "Codex (~/.codex/skills)" do_codex
+    spin_task "Claude (~/.claude/skills)" do_claude
+    spin_task "OpenCode (~/.config/opencode)" do_opencode
+    spin_task "Antigravity (~/.gemini/config)" do_gemini
     spin_task "Cursor Rule (~/.cursor/rules)" do_cursor
     spin_task "Global CLI Command (jarvis-ui-install)" do_cli
     draw_progress
     ;;
 esac
 
-# Summary Box
 echo -e "  ${C_GREEN}╭─────────────────────────────────────────────────────────────────╮${C_RESET}"
 echo -e "  ${C_GREEN}│${C_RESET}  ${C_BOLD}${C_GREEN}✔ Installation Active & Synchronized${C_RESET}                           ${C_GREEN}│${C_RESET}"
 echo -e "  ${C_GREEN}│${C_RESET}  ${C_WHITE}Jarvis-UI is now live across all your AI environments.${C_RESET}         ${C_GREEN}│${C_RESET}"
