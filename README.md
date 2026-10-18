@@ -1,8 +1,9 @@
 <div align="center">
 
 # ⚡ JARVIS-UI
-### Universal Kinetic Frontend & Animated UI Engineering Skill
-**Design & build world-class, kinetic, and hyper-polished web interfaces for ANY domain.**
+### Universal Kinetic Frontend & Animated UI Engineering Framework
+
+**Autonomous UI design, kinetic motion systems, and high-conversion frontend engineering for AI coding agents.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Supported Agents](https://img.shields.io/badge/Agents-Codex%20%7C%20Claude%20%7C%20OpenCode%20%7C%20Antigravity%20%7C%20Cursor-8B5CF6?style=for-the-badge)](#-one-command-installation)
@@ -10,17 +11,8 @@
 
 <br/>
 
-```text
-   ██╗ █████╗ ██████╗ ██╗   ██╗██╗███████╗      ██╗   ██╗██╗
-   ██║██╔══██╗██╔══██╗██║   ██║██║██╔════╝      ██║   ██║██║
-   ██║███████║██████╔╝██║   ██║██║███████╗█████╗██║   ██║██║
-██   ██║██╔══██║██╔══██╗╚██╗ ██╔╝██║╚════██║╚════╝██║   ██║██║
-╚█████╔╝██║  ██║██║  ██║ ╚████╔╝ ██║███████║     ╚██████╔╝██║
- ╚════╝ ╚═╝  ╚═╝╚═╝  ╚═╝  ╚═══╝  ╚═╝╚══════╝      ╚═════╝ ╚═╝
-```
-
 <p align="center">
-  <b>A generative animation & UI engineering playbook that turns any AI coding assistant into a tier-1 frontend designer.</b>
+  <b>A generative animation & UI engineering playbook that empowers any AI coding assistant to build world-class, kinetic web interfaces.</b>
 </p>
 
 [Quick Install](#-one-command-installation) • [Key Primitives](#-modular-animation-primitives) • [Domain Metaphors](#-adapting-to-any-domain) • [Interactive Demos](#-included-interactive-demos) • [Agent Prompts](#-agent-prompts)
@@ -35,15 +27,6 @@ Install **Jarvis-UI** across all your AI coding agents (**Codex, Claude Desktop/
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/thedileepkumar-dk/Jarvis-UI/main/install.sh | bash
-```
-
-### Or Local / Manual Installation
-
-If you already cloned the repository:
-
-```bash
-cd ~/Documents/Jarvis-UI
-bash install.sh
 ```
 
 ### 🎯 Multi-Agent Compatibility Matrix
@@ -61,7 +44,7 @@ bash install.sh
 
 ## 💡 What is Jarvis-UI?
 
-Most AI agents generate generic, flat, template-like landing pages. **Jarvis-UI** provides a structured design system and animation engine inspired by the visual polish of **Stripe, Linear, Raycast, and StockBazaar**.
+Most AI agents generate generic, flat, template-like landing pages. **Jarvis-UI** provides a structured design system and kinetic animation engine engineered for tier-1 web applications.
 
 It does **not** force hardcoded layouts. Instead, it equips agents with:
 1. **Domain Metaphor Synthesis**: Designing bespoke animations based on what the product actually does.

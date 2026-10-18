@@ -36,17 +36,10 @@ else
 fi
 
 print_banner() {
-  echo -e "${C_PURPLE}${C_BOLD}"
-  echo "   ██╗ █████╗ ██████╗ ██╗   ██╗██╗███████╗      ██╗   ██╗██╗"
-  echo "   ██║██╔══██╗██╔══██╗██║   ██║██║██╔════╝      ██║   ██║██║"
-  echo "   ██║███████║██████╔╝██║   ██║██║███████╗█████╗██║   ██║██║"
-  echo "██   ██║██╔══██║██╔══██╗╚██╗ ██╔╝██║╚════██║╚════╝██║   ██║██║"
-  echo "╚█████╔╝██║  ██║██║  ██║ ╚████╔╝ ██║███████║     ╚██████╔╝██║"
-  echo " ╚════╝ ╚═╝  ╚═╝╚═╝  ╚═╝  ╚═══╝  ╚═╝╚══════╝      ╚═════╝ ╚═╝"
-  echo -e "${C_RESET}"
-  echo -e "${C_CYAN}Universal Kinetic Frontend & Animated UI Engineering Framework${C_RESET}"
-  echo -e "${C_BOLD}Repo:${C_RESET} ${REPO_URL}"
-  echo -e "${C_BOLD}Source:${C_RESET} ${SOURCE_DIR}\n"
+  echo -e "\n${C_PURPLE}${C_BOLD}  ⚡ JARVIS-UI — Universal Kinetic Frontend Framework${C_RESET}"
+  echo -e "${C_CYAN}  Autonomous UI design, kinetic motion systems & frontend engineering${C_RESET}"
+  echo -e "  ${C_BOLD}Repository:${C_RESET} ${REPO_URL}"
+  echo -e "  ${C_BOLD}Source:${C_RESET}     ${SOURCE_DIR}\n"
 }
 
 install_target() {
