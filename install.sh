@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# ⚡ Jarvis-UI — Universal One-Command Installer
-# Installs Jarvis-UI across Codex, Claude, OpenCode, Antigravity, and Cursor.
-# Supports both direct local execution and one-liner curl execution:
-# curl -fsSL https://raw.githubusercontent.com/thedileepkumar-dk/Jarvis-UI/main/install.sh | bash
+# ⚡ JARVIS-UI — Animated Universal Installer
 # ==============================================================================
 
 set -e
@@ -12,57 +9,129 @@ REPO_URL="https://github.com/thedileepkumar-dk/Jarvis-UI.git"
 DEFAULT_INSTALL_DIR="${HOME}/Documents/Jarvis-UI"
 SKILL_NAME="Jarvis-UI"
 
-# Terminal Colors
-C_RESET="\033[0m"
-C_BOLD="\033[1m"
-C_CYAN="\033[36m"
-C_GREEN="\033[32m"
-C_YELLOW="\033[33m"
-C_PURPLE="\033[35m"
+# Colors & Formatting
+ESC="\033"
+C_RESET="${ESC}[0m"
+C_BOLD="${ESC}[1m"
+C_DIM="${ESC}[2m"
+C_PURPLE="${ESC}[38;2;155;99;211m"
+C_CYAN="${ESC}[38;2;6;182;212m"
+C_GREEN="${ESC}[38;2;34;197;94m"
+C_YELLOW="${ESC}[38;2;245;158;11m"
+C_WHITE="${ESC}[38;2;255;255;255m"
+C_MUTED="${ESC}[38;2;148;163;184m"
 
-# Determine Source Directory (handle both curl | bash and local execution)
+# TTY detection for animated spinners
+IS_TTY=false
+if [ -t 1 ]; then
+  IS_TTY=true
+fi
+
+# Cursor controls
+hide_cursor() { if $IS_TTY; then printf "${ESC}[?25l"; fi; }
+show_cursor() { if $IS_TTY; then printf "${ESC}[?25h"; fi; }
+trap show_cursor EXIT
+
+# Animated Spinner Helper
+spin_task() {
+  local label="$1"
+  local action_fn="$2"
+  local frames=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
+  
+  if ! $IS_TTY; then
+    printf "  ${C_PURPLE}●${C_RESET} %-40s " "${label}"
+    $action_fn >/dev/null 2>&1
+    printf "${C_GREEN}✔ Done${C_RESET}\n"
+    return 0
+  fi
+
+  hide_cursor
+  # Run action in background
+  $action_fn >/dev/null 2>&1 &
+  local pid=$!
+
+  local i=0
+  while kill -0 $pid 2>/dev/null; do
+    local frame="${frames[$((i % 10))]}"
+    printf "\r  ${C_PURPLE}${frame}${C_RESET} ${C_WHITE}%-40s${C_RESET}" "${label}"
+    i=$((i + 1))
+    sleep 0.06
+  done
+
+  wait $pid
+  printf "\r  ${C_GREEN}✔${C_RESET} ${C_WHITE}%-40s${C_RESET} ${C_GREEN}configured${C_RESET}\n" "${label}"
+  show_cursor
+}
+
+# Animated Progress Bar
+draw_progress() {
+  local duration=0.4
+  local steps=24
+  local delay=0.015
+
+  if ! $IS_TTY; then return 0; fi
+
+  hide_cursor
+  printf "\n  ${C_MUTED}Syncing components:${C_RESET} ["
+  for ((i=1; i<=steps; i++)); do
+    printf "${C_CYAN}█${C_RESET}"
+    sleep $delay
+  done
+  printf "] ${C_GREEN}100%%${C_RESET}\n\n"
+  show_cursor
+}
+
+# Resolve source directory
 if [ -n "${BASH_SOURCE[0]}" ] && [ -f "${BASH_SOURCE[0]}" ]; then
   SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 else
   SOURCE_DIR="${DEFAULT_INSTALL_DIR}"
   if [ ! -d "${SOURCE_DIR}/.git" ] && [ ! -f "${SOURCE_DIR}/SKILL.md" ]; then
-    echo -e "${C_CYAN}Cloning Jarvis-UI to ${SOURCE_DIR}...${C_RESET}"
     mkdir -p "$(dirname "${SOURCE_DIR}")"
-    git clone "${REPO_URL}" "${SOURCE_DIR}"
+    git clone --quiet "${REPO_URL}" "${SOURCE_DIR}"
   else
-    echo -e "${C_CYAN}Updating existing Jarvis-UI in ${SOURCE_DIR}...${C_RESET}"
-    git -C "${SOURCE_DIR}" pull --quiet || true
+    git -C "${SOURCE_DIR}" pull --quiet 2>/dev/null || true
   fi
 fi
 
-print_banner() {
-  echo -e "\n${C_PURPLE}${C_BOLD}  ⚡ JARVIS-UI — Universal Kinetic Frontend Framework${C_RESET}"
-  echo -e "${C_CYAN}  Autonomous UI design, kinetic motion systems & frontend engineering${C_RESET}"
-  echo -e "  ${C_BOLD}Repository:${C_RESET} ${REPO_URL}"
-  echo -e "  ${C_BOLD}Source:${C_RESET}     ${SOURCE_DIR}\n"
+# Print Sleek High-Tech Header
+print_header() {
+  echo ""
+  echo -e "  ${C_PURPLE}╭─────────────────────────────────────────────────────────────────╮${C_RESET}"
+  echo -e "  ${C_PURPLE}│${C_RESET}  ${C_BOLD}${C_WHITE}⚡ JARVIS-UI${C_RESET}  ${C_MUTED}•${C_RESET}  ${C_CYAN}Universal Kinetic Frontend Framework${C_RESET}          ${C_PURPLE}│${C_RESET}"
+  echo -e "  ${C_PURPLE}│${C_RESET}  ${C_DIM}Autonomous UI Design & Animation Systems for AI Coding Agents${C_RESET}  ${C_PURPLE}│${C_RESET}"
+  echo -e "  ${C_PURPLE}╰─────────────────────────────────────────────────────────────────╯${C_RESET}"
+  echo -e "  ${C_MUTED}Source:${C_RESET} ${C_DIM}${SOURCE_DIR}${C_RESET}\n"
 }
 
-install_target() {
-  local target_name="$1"
-  local target_dir="$2"
-  local dest_path="${target_dir}/${SKILL_NAME}"
-
-  echo -e "${C_CYAN}● Installing for ${C_BOLD}${target_name}${C_RESET}..."
-  mkdir -p "${target_dir}"
-
-  rm -rf "${dest_path}"
-  ln -s "${SOURCE_DIR}" "${dest_path}"
-  echo -e "  ${C_GREEN}✔ Linked:${C_RESET} ${dest_path} -> ${SOURCE_DIR}"
+# Installation functions for each environment
+do_codex() {
+  mkdir -p "${HOME}/.codex/skills"
+  rm -rf "${HOME}/.codex/skills/${SKILL_NAME}"
+  ln -s "${SOURCE_DIR}" "${HOME}/.codex/skills/${SKILL_NAME}"
 }
 
-install_cursor_rule() {
-  local target_dir="$1"
-  local rule_file="${target_dir}/Jarvis-UI.mdc"
+do_claude() {
+  mkdir -p "${HOME}/.claude/skills"
+  rm -rf "${HOME}/.claude/skills/${SKILL_NAME}"
+  ln -s "${SOURCE_DIR}" "${HOME}/.claude/skills/${SKILL_NAME}"
+}
 
-  echo -e "${C_CYAN}● Installing Cursor Rule...${C_RESET}"
-  mkdir -p "${target_dir}"
+do_opencode() {
+  mkdir -p "${HOME}/.config/opencode/skills"
+  rm -rf "${HOME}/.config/opencode/skills/${SKILL_NAME}"
+  ln -s "${SOURCE_DIR}" "${HOME}/.config/opencode/skills/${SKILL_NAME}"
+}
 
-  cat << 'RULE' > "${rule_file}"
+do_gemini() {
+  mkdir -p "${HOME}/.gemini/config/skills"
+  rm -rf "${HOME}/.gemini/config/skills/${SKILL_NAME}"
+  ln -s "${SOURCE_DIR}" "${HOME}/.gemini/config/skills/${SKILL_NAME}"
+}
+
+do_cursor() {
+  mkdir -p "${HOME}/.cursor/rules"
+  cat << 'RULE' > "${HOME}/.cursor/rules/Jarvis-UI.mdc"
 ---
 description: Jarvis-UI Kinetic Frontend Framework. Apply when building animated, modern web frontends, SaaS landing pages, interactive cockpits, and micro-animations.
 globs: **/*.{html,css,js,jsx,ts,tsx,vue,svelte}
@@ -78,72 +147,52 @@ Key Architecture Rules:
 5. Tabular numerals (tabular-nums) for dynamic metrics, stats, and prices.
 6. Snappy spring deceleration timing: cubic-bezier(0.16, 1, 0.3, 1).
 RULE
-
-  echo -e "  ${C_GREEN}✔ Created Cursor Rule:${C_RESET} ${rule_file}"
 }
 
-install_cli_shortcut() {
-  local bin_dir="${HOME}/.local/bin"
-  mkdir -p "${bin_dir}"
-  local shortcut_path="${bin_dir}/jarvis-ui-install"
-
-  cat << SCRIPT > "${shortcut_path}"
+do_cli() {
+  mkdir -p "${HOME}/.local/bin"
+  cat << SCRIPT > "${HOME}/.local/bin/jarvis-ui-install"
 #!/usr/bin/env bash
 bash "${SOURCE_DIR}/install.sh" "\$@"
 SCRIPT
-
-  chmod +x "${shortcut_path}"
-  echo -e "\n${C_GREEN}✔ Global CLI command installed:${C_RESET} ${shortcut_path}"
-  echo -e "  You can run ${C_BOLD}jarvis-ui-install${C_RESET} from any terminal."
+  chmod +x "${HOME}/.local/bin/jarvis-ui-install"
 }
 
-TARGET_ENV="${1:-all}"
-print_banner
+# Main Execution Flow
+print_header
 
-case "${TARGET_ENV}" in
+TARGET="${1:-all}"
+
+case "${TARGET}" in
   --codex|codex)
-    install_target "Codex" "${HOME}/.codex/skills"
+    spin_task "Codex Skill Integration" do_codex
     ;;
   --claude|claude)
-    install_target "Claude" "${HOME}/.claude/skills"
+    spin_task "Claude Skill Integration" do_claude
     ;;
   --opencode|opencode)
-    install_target "OpenCode" "${HOME}/.config/opencode/skills"
+    spin_task "OpenCode Skill Integration" do_opencode
     ;;
   --gemini|gemini|antigravity)
-    install_target "Antigravity / Gemini" "${HOME}/.gemini/config/skills"
+    spin_task "Antigravity / Gemini Integration" do_gemini
     ;;
   --cursor|cursor)
-    install_cursor_rule "${HOME}/.cursor/rules"
-    ;;
-  --project|project)
-    PROJECT_DIR="${2:-.}"
-    echo -e "${C_CYAN}● Installing to Project at:${C_RESET} ${PROJECT_DIR}"
-    install_target "Project Workspace" "${PROJECT_DIR}/.agents/skills"
-    install_cursor_rule "${PROJECT_DIR}/.cursor/rules"
+    spin_task "Cursor Rule Configuration" do_cursor
     ;;
   --all|all)
-    echo -e "${C_YELLOW}Detected AI environments. Installing Jarvis-UI globally...${C_RESET}\n"
-    install_target "Codex" "${HOME}/.codex/skills"
-    install_target "Claude" "${HOME}/.claude/skills"
-    install_target "OpenCode" "${HOME}/.config/opencode/skills"
-    install_target "Antigravity / Gemini" "${HOME}/.gemini/config/skills"
-    install_cursor_rule "${HOME}/.cursor/rules"
-    install_cli_shortcut
-    ;;
-  *)
-    echo -e "${C_YELLOW}Usage:${C_RESET}"
-    echo "  curl -fsSL https://raw.githubusercontent.com/thedileepkumar-dk/Jarvis-UI/main/install.sh | bash"
-    echo "  bash install.sh               # Install to all detected AI tools"
-    echo "  bash install.sh --codex       # Install only for Codex"
-    echo "  bash install.sh --claude      # Install only for Claude"
-    echo "  bash install.sh --opencode    # Install only for OpenCode"
-    echo "  bash install.sh --gemini      # Install only for Antigravity / Gemini"
-    echo "  bash install.sh --project .   # Install directly into current project"
-    exit 0
+    spin_task "Codex (${HOME}/.codex/skills)" do_codex
+    spin_task "Claude (${HOME}/.claude/skills)" do_claude
+    spin_task "OpenCode (~/.config/opencode/skills)" do_opencode
+    spin_task "Antigravity (~/.gemini/config/skills)" do_gemini
+    spin_task "Cursor Rule (~/.cursor/rules)" do_cursor
+    spin_task "Global CLI Command (jarvis-ui-install)" do_cli
+    draw_progress
     ;;
 esac
 
-echo -e "\n${C_GREEN}${C_BOLD}★ Installation Complete!${C_RESET}"
-echo -e "Jarvis-UI is now ready in ${C_BOLD}Codex, Claude, OpenCode, Antigravity, and Cursor${C_RESET}."
-echo -e "Any updates in ${C_CYAN}${SOURCE_DIR}${C_RESET} will instantly sync across all tools.\n"
+# Summary Box
+echo -e "  ${C_GREEN}╭─────────────────────────────────────────────────────────────────╮${C_RESET}"
+echo -e "  ${C_GREEN}│${C_RESET}  ${C_BOLD}${C_GREEN}✔ Installation Active & Synchronized${C_RESET}                           ${C_GREEN}│${C_RESET}"
+echo -e "  ${C_GREEN}│${C_RESET}  ${C_WHITE}Jarvis-UI is now live across all your AI environments.${C_RESET}         ${C_GREEN}│${C_RESET}"
+echo -e "  ${C_GREEN}│${C_RESET}  ${C_MUTED}Prompt any agent:${C_RESET} ${C_CYAN}\"Using Jarvis-UI, build [your project]\"${C_RESET}  ${C_GREEN}│${C_RESET}"
+echo -e "  ${C_GREEN}╰─────────────────────────────────────────────────────────────────╯${C_RESET}\n"
