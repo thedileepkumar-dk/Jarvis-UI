@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vortex — Next-Generation WebGPU &amp; Neural Shader Compiler</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Rokkitt:wght@700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --brand: #06B6D4; /* Cyber Cyan */
+      --brand-deep: #0891B2;
+      --brand-deepest: #164E63;
+      --brand-soft: #ECFEFF;
+      --brand-rgb: 6, 182, 212;
+
+      --emerald: #10B981;
+      --violet: #8B5CF6;
+      --amber: #F59E0B;
+      --pink: #EC4899;
+
+      --ink: #0B0F19;
+      --ink-soft: #334155;
+      --slate: #64748B;
+      --line: #E2E8F0;
+      --wash: #F8FAFC;
+      --white: #FFFFFF;
+
+      --font-brand: 'Rokkitt', Georgia, serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      color: var(--ink-soft);
+      background: var(--white);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+    .wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+
+    /* Sticky Pill Header */
+    .hdr {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      padding: 20px 0;
+      z-index: 100;
+      transition: all 0.3s var(--ease);
+    }
+    .hdr.is-stuck {
+      position: fixed;
+      top: 14px;
+      padding: 0;
+      animation: dropIn 0.35s var(--ease) both;
+    }
+    @keyframes dropIn { from { transform: translateY(-24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .hdr-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      border-radius: 999px;
+      padding: 10px 24px;
+      box-shadow: 0 10px 30px rgba(11, 15, 25, 0.06);
+    }
+    .logo-text { font-family: var(--font-brand); font-size: 22px; font-weight: 800; }
+    .logo-text .p1 { color: var(--brand); }
+    .logo-text .p2 { color: var(--brand-deepest); }
+
+    /* Ambient Hero */
+    .hero {
+      position: relative;
+      padding: 160px 0 80px;
+      text-align: center;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 20%, rgba(var(--brand-rgb), 0.12) 0%, transparent 65%);
+    }
+    .hero-glow {
+      position: absolute;
+      top: -100px; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 380px;
+      background: radial-gradient(circle, rgba(207, 250, 254, 0.8) 0%, rgba(6, 182, 212, 0.2) 50%, transparent 80%);
+      filter: blur(60px);
+      z-index: -1;
+    }
+    .hero-title {
+      font-size: clamp(2.4rem, 1.8rem + 2.8vw, 4.4rem);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--ink);
+      line-height: 1.12;
+      max-width: 860px;
+      margin: 0 auto 20px;
+    }
+    .hero-title .hl { color: var(--brand); }
+    .hero-sub {
+      font-size: 1.15rem;
+      color: var(--slate);
+      max-width: 600px;
+      margin: 0 auto 36px;
+      line-height: 1.7;
+    }
+
+    /* Floating Orbit Chips */
+    .chip-cloud { position: relative; max-width: 1000px; margin: 0 auto 50px; height: 90px; }
+    .orbit-chip {
+      position: absolute;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--line);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--ink);
+      backdrop-filter: blur(8px);
+      animation: chipBob 4s ease-in-out infinite alternate;
+      transition: all 0.2s var(--ease);
+    }
+    .orbit-chip:hover { transform: translateY(-4px) scale(1.05); }
+    @keyframes chipBob { 0% { transform: translateY(0); } 100% { transform: translateY(-7px); } }
+
+    /* Interactive 3D Perspective Shader Cockpit */
+    .showcase {
+      max-width: 1100px;
+      margin: 0 auto 100px;
+      perspective: 1000px;
+    }
+    .chassis {
+      background: #0B0F19;
+      border-radius: 18px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 34px 80px rgba(6, 182, 212, 0.15);
+      color: #FFF;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      transition: transform 0.15s ease-out;
+      transform-style: preserve-3d;
+    }
+    .code-box {
+      background: #030712;
+      border-radius: 10px;
+      padding: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-family: monospace;
+      font-size: 0.82rem;
+      color: #94A3B8;
+      line-height: 1.6;
+    }
+    .code-box .kw { color: var(--pink); font-weight: 700; }
+    .code-box .fn { color: var(--brand); font-weight: 700; }
+    .code-box .num { color: var(--amber); }
+
+    .sim-viewport {
+      background: radial-gradient(circle at center, #164E63 0%, #030712 80%);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .sim-stats {
+      position: absolute;
+      top: 14px; left: 14px;
+      font-size: 0.75rem;
+      color: var(--brand);
+      font-weight: 700;
+    }
+    .geo-cube {
+      width: 100px; height: 100px;
+      border: 2px solid var(--brand);
+      border-radius: 14px;
+      animation: spin3D 8s linear infinite;
+      box-shadow: 0 0 30px rgba(6, 182, 212, 0.4);
+    }
+    @keyframes spin3D {
+      0% { transform: rotate(0deg) scale(0.9); }
+      50% { transform: rotate(180deg) scale(1.1); }
+      100% { transform: rotate(360deg) scale(0.9); }
+    }
+
+    /* AST Synthesis Flow Pipeline */
+    .pipeline-sec {
+      padding: 90px 0;
+      background: var(--wash);
+      text-align: center;
+    }
+    .flow-svg { width: 100%; max-width: 900px; margin: 30px auto; display: block; }
+    .wire-base { fill: none; stroke: var(--line); stroke-width: 2px; }
+    .wire-pulse {
+      fill: none;
+      stroke: var(--brand);
+      stroke-width: 3.5px;
+      stroke-linecap: round;
+      stroke-dasharray: 14 86;
+      animation: wireDash 3s linear infinite;
+    }
+    @keyframes wireDash { 0% { stroke-dashoffset: 100; } 100% { stroke-dashoffset: 0; } }
+  </style>
+</head>
+<body>
+
+  <header class="hdr" id="navbar">
+    <div class="wrap">
+      <div class="hdr-inner">
+        <a href="#" class="logo-text"><span class="p1">Vortex</span><span class="p2">GPU</span></a>
+        <div style="display: flex; gap: 24px; font-weight: 500; font-size: 0.92rem; color: var(--slate);">
+          <a href="#">Compiler</a>
+          <a href="#">Shaders</a>
+          <a href="#">Benchmarks</a>
+          <a href="#">Docs</a>
+        </div>
+        <a href="#" style="background: var(--brand); color: #FFF; padding: 8px 20px; border-radius: 999px; font-weight: 600; font-size: 0.9rem;">Get CLI →</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="wrap">
+      <h1 class="hero-title">
+        Compile Shaders at the <span class="hl">Speed of Light</span>.
+      </h1>
+      <p class="hero-sub">
+        Zero-overhead WebGPU compilation and native neural kernel execution for modern spatial graphics and generative AI.
+      </p>
+
+      <div class="chip-cloud">
+        <span class="orbit-chip" style="left: 10%; top: 10%;">⚡ 0.12ms JIT Compile</span>
+        <span class="orbit-chip" style="left: 40%; top: 35%;">🎮 WebGPU &amp; Vulkan</span>
+        <span class="orbit-chip" style="left: 70%; top: 8%;">✨ Dynamic Hot-Reload</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive 3D Chassis Showcase with Reactive Tilt -->
+  <section class="showcase">
+    <div class="chassis" id="tiltBox">
+      <div class="code-box">
+        <span class="kw">@compute</span> <span class="kw">@workgroup_size</span>(<span class="num">8</span>, <span class="num">8</span>)<br />
+        <span class="kw">fn</span> <span class="fn">main</span>(@builtin(global_invocation_id) id: vec3&lt;u32&gt;) {<br />
+        &nbsp;&nbsp;<span class="kw">let</span> uv = vec2&lt;f32&gt;(id.xy) / <span class="num">1024.0</span>;<br />
+        &nbsp;&nbsp;<span class="kw">let</span> n = <span class="fn">vortexNoise</span>(uv * <span class="num">4.0</span>);<br />
+        &nbsp;&nbsp;<span class="fn">textureStore</span>(outputTex, id.xy, vec4(n, n * <span class="num">0.6</span>, <span class="num">1.0</span>, <span class="num">1.0</span>));<br />
+        }
+      </div>
+
+      <div class="sim-viewport">
+        <div class="sim-stats">120 FPS · 0.21ms Kernel Time</div>
+        <div class="geo-cube"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dynamic SVG Synthesis Pipeline -->
+  <section class="pipeline-sec">
+    <div class="wrap">
+      <h2 style="font-size: 2rem; font-weight: 800; color: var(--ink);">Universal Target Synthesis</h2>
+      <p style="color: var(--slate); max-width: 500px; margin: 8px auto 0;">Write once in WGSL or GLSL. Vortex synthesizes optimized native pipelines for every architecture.</p>
+
+      <svg class="flow-svg" viewBox="0 0 1000 300" preserveAspectRatio="none">
+        <g>
+          <path class="wire-base" d="M 100 70 C 300 70, 400 150, 500 150" pathLength="100" />
+          <path class="wire-pulse" d="M 100 70 C 300 70, 400 150, 500 150" pathLength="100" style="animation-delay: 0s" />
+        </g>
+        <g>
+          <path class="wire-base" d="M 100 230 C 300 230, 400 150, 500 150" pathLength="100" />
+          <path class="wire-pulse" d="M 100 230 C 300 230, 400 150, 500 150" pathLength="100" style="animation-delay: 1.4s" />
+        </g>
+        <g>
+          <path class="wire-base" d="M 500 150 C 600 150, 700 70, 900 70" pathLength="100" />
+          <path class="wire-pulse" d="M 500 150 C 600 150, 700 70, 900 70" pathLength="100" style="animation-delay: 2.1s" />
+        </g>
+        <g>
+          <path class="wire-base" d="M 500 150 C 600 150, 700 230, 900 230" pathLength="100" />
+          <path class="wire-pulse" d="M 500 150 C 600 150, 700 230, 900 230" pathLength="100" style="animation-delay: 0.8s" />
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <script>
+    // 3D perspective mouse tilt
+    const box = document.getElementById('tiltBox');
+    box.addEventListener('mousemove', (e) => {
+      const rect = box.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      box.style.transform = `perspective(1000px) rotateX(${-y * 0.04}deg) rotateY(${x * 0.04}deg)`;
+    });
+    box.addEventListener('mouseleave', () => {
+      box.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+    });
+
+    // Sticky header
+    window.addEventListener('scroll', () => {
+      document.getElementById('navbar').classList.toggle('is-stuck', window.scrollY > 40);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TracePulse — High-Velocity AI &amp; Cloud Telemetry Platform</title>
+  <meta name="description" content="One unified intelligence terminal for your AI agents, token streams, and cloud microservices." />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Rokkitt:wght@700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --brand: #6366F1;
+      --brand-deep: #4F46E5;
+      --brand-deepest: #3730A3;
+      --brand-soft: #EEF2FF;
+      --brand-border: #E0E7FF;
+      --brand-rgb: 99, 102, 241;
+
+      --green: #10B981;
+      --green-soft: #ECFDF5;
+      --red: #EF4444;
+      --red-soft: #FEF2F2;
+      --amber: #F59E0B;
+      --sky: #0EA5E9;
+      --pink: #EC4899;
+
+      --ink: #0F172A;
+      --ink-soft: #334155;
+      --slate: #64748B;
+      --slate-light: #94A3B8;
+      --line: #E2E8F0;
+      --line-soft: #F1F5F9;
+      --wash: #F8FAFC;
+      --white: #FFFFFF;
+
+      --font-brand: 'Rokkitt', Georgia, serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --shadow-sm: 0 4px 14px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 14px 40px rgba(15, 23, 42, 0.08);
+      --shadow-xl: 0 40px 100px rgba(30, 27, 75, 0.18);
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      color: var(--ink-soft);
+      background: var(--white);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+    button { font: inherit; cursor: pointer; border: none; background: none; }
+    .wrap { width: 100%; max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+
+    /* Sticky Floating Header */
+    .hdr {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      padding: 20px 0;
+      z-index: 100;
+      transition: all 0.3s var(--ease);
+    }
+    .hdr.is-stuck {
+      position: fixed;
+      top: 14px;
+      padding: 0;
+      animation: dropIn 0.35s var(--ease) both;
+    }
+    @keyframes dropIn {
+      from { transform: translateY(-24px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .hdr-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      border-radius: 999px;
+      padding: 10px 18px 10px 24px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    }
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      user-select: none;
+    }
+    .logo-badge {
+      width: 32px;
+      height: 32px;
+      background: var(--brand);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFF;
+      font-weight: 800;
+      font-size: 16px;
+    }
+    .logo-text {
+      font-family: var(--font-brand);
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 1;
+    }
+    .logo-text .part-1 { color: var(--brand); }
+    .logo-text .part-2 { color: var(--brand-deepest); }
+
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-link { font-size: 0.92rem; font-weight: 500; color: var(--slate); transition: color 0.18s; }
+    .nav-link:hover, .nav-link.active { color: var(--brand); }
+    
+    .hdr-actions { display: flex; align-items: center; gap: 14px; }
+    .btn-login {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--brand);
+      border: 1.5px solid var(--brand);
+      border-radius: 999px;
+      padding: 7px 18px;
+      transition: all 0.18s;
+    }
+    .btn-login:hover { background: rgba(var(--brand-rgb), 0.08); }
+    .btn-signup {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #FFF;
+      background: var(--brand);
+      border-radius: 999px;
+      padding: 8px 20px;
+      box-shadow: 0 6px 18px rgba(var(--brand-rgb), 0.35);
+      transition: all 0.18s var(--ease);
+    }
+    .btn-signup:hover {
+      background: var(--brand-deep);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(var(--brand-rgb), 0.45);
+    }
+
+    /* Ambient Hero */
+    .hero {
+      position: relative;
+      padding: 160px 0 70px;
+      text-align: center;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 18%, rgba(var(--brand-rgb), 0.10) 0%, transparent 65%);
+    }
+    .hero-glow {
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 380px;
+      background: radial-gradient(circle, rgba(224, 231, 255, 0.8) 0%, rgba(99, 102, 241, 0.2) 50%, transparent 80%);
+      filter: blur(60px);
+      z-index: -1;
+      pointer-events: none;
+    }
+    .hero-title {
+      font-size: clamp(2.4rem, 1.8rem + 2.8vw, 4.4rem);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--ink);
+      line-height: 1.12;
+      max-width: 860px;
+      margin: 0 auto 20px;
+    }
+    .hero-title .hl { color: var(--brand); }
+    .hero-sub {
+      font-size: 1.15rem;
+      color: var(--slate);
+      max-width: 620px;
+      margin: 0 auto 36px;
+      line-height: 1.7;
+    }
+
+    /* Orbiting Hero Chips */
+    .chip-cloud {
+      position: relative;
+      max-width: 1040px;
+      margin: 0 auto 50px;
+      height: 90px;
+    }
+    .orbit-chip {
+      position: absolute;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--ink);
+      backdrop-filter: blur(8px);
+      animation: chipFloat 4s ease-in-out infinite alternate;
+      transition: all 0.2s var(--ease);
+      cursor: pointer;
+    }
+    .orbit-chip:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: var(--shadow-md);
+      border-color: var(--brand-border);
+    }
+    .chip-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot-pink { background: var(--pink); }
+    .dot-green { background: var(--green); }
+    .dot-sky { background: var(--sky); }
+    .dot-brand { background: var(--brand); }
+    .dot-amber { background: var(--amber); }
+
+    @keyframes chipFloat {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-7px); }
+    }
+
+    /* Hardware Laptop Showcase */
+    .showcase {
+      position: relative;
+      margin: 0 auto 120px;
+      max-width: 1200px;
+      padding: 0 20px;
+    }
+    .bezel-chassis {
+      background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
+      border-radius: 18px 18px 6px 6px;
+      padding: 12px 12px 24px;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      position: relative;
+    }
+    .screen-viewport {
+      background: #FFF;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #CBD5E1;
+    }
+    .bezel-stand {
+      width: 380px;
+      height: 12px;
+      background: linear-gradient(180deg, #334155 0%, #0F172A 100%);
+      border-radius: 0 0 14px 14px;
+      margin: 0 auto;
+      box-shadow: 0 18px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Dense Cockpit Grid */
+    .cockpit-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr 300px;
+      background: #FFF;
+      min-height: 480px;
+    }
+    .col-pane {
+      padding: 14px;
+      border-right: 1px solid var(--line-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .col-pane:last-child { border-right: none; }
+
+    .pane-search {
+      background: var(--wash);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.82rem;
+      color: var(--slate);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .table-card {
+      background: #FFF;
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .table-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--wash);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--ink);
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .table-row {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      align-items: center;
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .table-row:last-child { border-bottom: none; }
+    .row-title { font-weight: 600; color: var(--ink); }
+    .badge-up { color: var(--green); font-weight: 700; text-align: right; }
+    .badge-dn { color: var(--red); font-weight: 700; text-align: right; }
+    .row-metric { font-weight: 700; color: var(--ink); text-align: right; }
+
+    /* Center Metrics */
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .metric-box {
+      background: var(--wash);
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      padding: 10px;
+    }
+    .metric-top { display: flex; justify-content: space-between; align-items: baseline; }
+    .metric-lbl { font-size: 0.75rem; font-weight: 700; color: var(--slate); }
+    .metric-val { font-size: 0.95rem; font-weight: 800; color: var(--ink); }
+    .range-bar {
+      height: 4px;
+      background: var(--line);
+      border-radius: 999px;
+      position: relative;
+      margin: 6px 0 4px;
+    }
+    .range-thumb {
+      position: absolute;
+      top: -3px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--ink);
+      transform: translateX(-50%);
+    }
+    .range-meta { display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--slate-light); }
+
+    /* Right Gauge */
+    .gauge-card { text-align: center; padding: 12px; background: var(--wash); border-radius: 8px; }
+    .gauge-card svg { width: 140px; height: 80px; margin: 0 auto; display: block; }
+    .gauge-reading { font-size: 1.3rem; font-weight: 800; color: var(--ink); line-height: 1.2; margin-top: 4px; }
+    .gauge-state { font-size: 0.75rem; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: 0.08em; }
+
+    /* Dock */
+    .cockpit-dock {
+      display: flex;
+      gap: 6px;
+      padding: 8px 14px;
+      background: var(--wash);
+      border-top: 1px solid var(--line-soft);
+    }
+    .dock-tab {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--slate);
+      cursor: pointer;
+    }
+    .dock-tab.active { background: var(--brand); color: #FFF; }
+
+    /* Floating Status Card */
+    .live-badge-card {
+      position: absolute;
+      top: -24px;
+      left: 60px;
+      background: #FFF;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 16px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 10;
+    }
+    .live-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+      position: relative;
+    }
+    .live-dot::after {
+      content: "";
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: var(--green);
+      opacity: 0.4;
+      animation: pulseAnim 2s infinite ease-in-out;
+    }
+    @keyframes pulseAnim {
+      0%, 100% { transform: scale(1); opacity: 0.4; }
+      50% { transform: scale(1.8); opacity: 0; }
+    }
+
+    /* 5-Step Staggered Workflow */
+    .sec-steps { padding: 100px 0; background: linear-gradient(180deg, var(--white) 0%, var(--wash) 100%); }
+    .sec-eyebrow {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--brand);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 8px;
+      display: block;
+      text-align: center;
+    }
+    .sec-title {
+      font-size: clamp(1.8rem, 1.4rem + 1.8vw, 2.8rem);
+      font-weight: 800;
+      color: var(--ink);
+      text-align: center;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .sec-desc {
+      font-size: 1.05rem;
+      color: var(--slate);
+      text-align: center;
+      max-width: 620px;
+      margin: 0 auto 60px;
+    }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+    }
+    .step-card {
+      background: #FFF;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 24px 18px;
+      position: relative;
+      transition: all 0.2s var(--ease);
+      box-shadow: var(--shadow-sm);
+    }
+    .step-card.is-low { margin-top: 36px; }
+    .step-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--brand-border); }
+    .step-num { font-size: 0.82rem; font-weight: 800; color: var(--brand); margin-bottom: 8px; }
+    .step-name { font-size: 1.1rem; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+    .step-tools { list-style: none; font-size: 0.85rem; color: var(--slate); line-height: 1.6; }
+
+    /* Kinetic Pipeline Flow */
+    .flow-sec { padding: 100px 0; background: var(--white); text-align: center; }
+    .flow-box {
+      max-width: 1000px;
+      margin: 40px auto 0;
+      background: var(--wash);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 40px 24px;
+      position: relative;
+    }
+    .flow-columns {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 2;
+    }
+    .flow-col-inputs, .flow-col-outputs {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 180px;
+    }
+    .flow-pill {
+      background: #FFF;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--ink);
+      box-shadow: var(--shadow-sm);
+    }
+    .flow-hub {
+      width: 110px; height: 110px;
+      border-radius: 28px;
+      background: var(--brand);
+      box-shadow: 0 14px 34px rgba(var(--brand-rgb), 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFF;
+      font-weight: 900;
+      font-size: 20px;
+      animation: pulseAnim 3s infinite ease-in-out;
+    }
+
+    /* Radar Sonar Section */
+    .radar-sec { padding: 100px 0; background: var(--wash); text-align: center; }
+    .radar-wrap { max-width: 820px; margin: 30px auto; position: relative; }
+    .radar-svg { width: 100%; height: auto; display: block; }
+    .mr-sweep {
+      transform-origin: 500px 320px;
+      animation: radarRotate 6s linear infinite;
+    }
+    @keyframes radarRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* Pricing Section */
+    .pricing-sec { padding: 110px 0; background: var(--white); }
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 50px;
+    }
+    .toggle-sw {
+      width: 48px;
+      height: 26px;
+      background: var(--brand);
+      border-radius: 999px;
+      position: relative;
+      cursor: pointer;
+    }
+    .toggle-knob {
+      width: 20px;
+      height: 20px;
+      background: #FFF;
+      border-radius: 50%;
+      position: absolute;
+      top: 3px;
+      left: 25px;
+      transition: left 0.2s var(--ease);
+    }
+    .toggle-sw.is-monthly .toggle-knob { left: 3px; }
+    .save-pill {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--brand-deepest);
+      background: var(--brand-soft);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    .price-card {
+      background: #FFF;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: all 0.2s var(--ease);
+    }
+    .price-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .price-card.is-popular {
+      border: 2px solid var(--brand);
+      box-shadow: 0 16px 40px rgba(var(--brand-rgb), 0.15);
+    }
+    .pop-ribbon {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--brand);
+      color: #FFF;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 999px;
+    }
+    .price-name { font-size: 1.25rem; font-weight: 800; color: var(--ink); margin-bottom: 12px; }
+    .price-amt { font-size: 2.2rem; font-weight: 800; color: var(--ink); line-height: 1; }
+    .price-sub { font-size: 0.85rem; color: var(--slate); margin-top: 6px; }
+    .price-features { list-style: none; margin: 28px 0; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+    .price-features li { font-size: 0.86rem; color: var(--slate); display: flex; align-items: center; gap: 8px; }
+    .price-features li::before { content: "✓"; color: var(--brand); font-weight: 800; }
+    .price-cta {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-align: center;
+      background: var(--wash);
+      color: var(--brand-deepest);
+      transition: all 0.18s;
+    }
+    .price-card.is-popular .price-cta {
+      background: var(--brand);
+      color: #FFF;
+      box-shadow: 0 6px 18px rgba(var(--brand-rgb), 0.35);
+    }
+
+    /* Footer */
+    .ftr {
+      background: #0F172A;
+      color: #94A3B8;
+      padding: 80px 0 40px;
+      font-size: 0.88rem;
+    }
+    .ftr-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 60px;
+    }
+    .ftr h4 { color: #FFF; margin-bottom: 16px; font-weight: 700; }
+    .ftr ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+    @media (max-width: 992px) {
+      .cockpit-grid { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+      .ftr-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Sticky Header -->
+  <header class="hdr" id="navbar">
+    <div class="wrap">
+      <div class="hdr-inner">
+        <a href="#" class="logo">
+          <div class="logo-badge">⚡</div>
+          <span class="logo-text"><span class="part-1">Trace</span><span class="part-2">Pulse</span></span>
+        </a>
+
+        <nav class="nav-links">
+          <a href="#top" class="nav-link active">Overview</a>
+          <a href="#features" class="nav-link">Tracing</a>
+          <a href="#pipeline" class="nav-link">Pipelines</a>
+          <a href="#pricing" class="nav-link">Pricing</a>
+          <a href="#docs" class="nav-link">Documentation</a>
+        </nav>
+
+        <div class="hdr-actions">
+          <a href="#login" class="btn-login">Sign In</a>
+          <a href="#signup" class="btn-signup">Start Tracing →</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Ambient Hero Section -->
+  <section class="hero" id="top">
+    <div class="hero-glow"></div>
+    <div class="wrap">
+      <h1 class="hero-title">
+        <span class="hl">Stop</span> Debugging in the Dark.<br />We trace <span class="hl">every token</span>.
+      </h1>
+      <p class="hero-sub">
+        Real-time telemetry, automated evaluations, and multi-cloud latency profiling for mission-critical AI agents and microservices.
+      </p>
+
+      <!-- Orbiting Feature Chips -->
+      <div class="chip-cloud">
+        <span class="orbit-chip" style="left: 6%; top: 10%;"><i class="chip-dot dot-pink"></i> Prompt Sandbox</span>
+        <span class="orbit-chip" style="left: 28%; top: 40%;"><i class="chip-dot dot-sky"></i> Latency Sentinel</span>
+        <span class="orbit-chip" style="left: 50%; top: 5%;"><i class="chip-dot dot-brand"></i> Vector Anomaly Scan</span>
+        <span class="orbit-chip" style="left: 70%; top: 38%;"><i class="chip-dot dot-green"></i> Evals Engine</span>
+        <span class="orbit-chip" style="left: 85%; top: 8%;"><i class="chip-dot dot-amber"></i> Cost Limiter</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hardware Showcase Bezel -->
+  <section class="showcase">
+    <div class="live-badge-card">
+      <span class="live-dot"></span>
+      <div>
+        <b style="font-size: 0.85rem; color: var(--ink);">TraceMesh Live</b>
+        <span style="font-size: 0.75rem; color: var(--slate); display: block;">99.99% Node Health · 0.14ms</span>
+      </div>
+    </div>
+
+    <div class="bezel-chassis">
+      <div class="screen-viewport">
+        <div class="cockpit-grid">
+          
+          <!-- Column 1: Active Agents & Search -->
+          <div class="col-pane">
+            <div class="pane-search">
+              <span>🔍</span>
+              <span>Search agent traces, runs, spans...</span>
+            </div>
+
+            <div class="table-card">
+              <div class="table-hdr">
+                <span>Active Agent</span>
+                <span>Uptime</span>
+                <span>Latency</span>
+              </div>
+              <div class="table-row">
+                <span class="row-title">Researcher-v2</span>
+                <span class="badge-up tabular-nums">99.9%</span>
+                <span class="row-metric tabular-nums">142ms</span>
+              </div>
+              <div class="table-row">
+                <span class="row-title">CodeSynthesizer</span>
+                <span class="badge-up tabular-nums">100%</span>
+                <span class="row-metric tabular-nums">88ms</span>
+              </div>
+              <div class="table-row">
+                <span class="row-title">DataPipelineBot</span>
+                <span class="badge-dn tabular-nums">Degraded</span>
+                <span class="row-metric tabular-nums">412ms</span>
+              </div>
+              <div class="table-row">
+                <span class="row-title">RouterGate-US</span>
+                <span class="badge-up tabular-nums">100%</span>
+                <span class="row-metric tabular-nums">12ms</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: Metrics Grid -->
+          <div class="col-pane">
+            <div class="metrics-row">
+              <div class="metric-box">
+                <div class="metric-top"><span class="metric-lbl">Total Tokens</span><span class="metric-val tabular-nums">4.82M/s</span></div>
+                <div class="range-bar"><div class="range-thumb" style="left: 68%;"></div></div>
+                <div class="range-meta"><span>P50 1.2M</span><span>P99 6.4M</span></div>
+              </div>
+
+              <div class="metric-box">
+                <div class="metric-top"><span class="metric-lbl">Error Rate</span><span class="metric-val tabular-nums">0.02%</span></div>
+                <div class="range-bar"><div class="range-thumb" style="left: 14%;"></div></div>
+                <div class="range-meta"><span>Target &lt;0.1%</span><span>SLA OK</span></div>
+              </div>
+
+              <div class="metric-box">
+                <div class="metric-top"><span class="metric-lbl">Compute Cost</span><span class="metric-val tabular-nums">$0.42/1k</span></div>
+                <div class="range-bar"><div class="range-thumb" style="left: 45%;"></div></div>
+                <div class="range-meta"><span>Budget $1.20</span><span>-34%</span></div>
+              </div>
+            </div>
+
+            <div class="table-card" style="margin-top: 10px;">
+              <div class="table-hdr"><span>Live Spans &amp; Model Routing</span></div>
+              <div class="table-row"><span class="row-title">Gemini 1.5 Pro</span><span class="badge-up tabular-nums">Success</span><span class="row-metric tabular-nums">280ms</span></div>
+              <div class="table-row"><span class="row-title">Claude 3.5 Sonnet</span><span class="badge-up tabular-nums">Success</span><span class="row-metric tabular-nums">310ms</span></div>
+              <div class="table-row"><span class="row-title">GPT-4o Mini</span><span class="badge-up tabular-nums">Success</span><span class="row-metric tabular-nums">94ms</span></div>
+            </div>
+          </div>
+
+          <!-- Column 3: Status Gauge -->
+          <div class="col-pane">
+            <div class="gauge-card">
+              <span style="font-size: 0.72rem; font-weight: 700; color: var(--slate); text-transform: uppercase;">Hallucination Guard Score</span>
+              <svg viewBox="0 0 140 82">
+                <g fill="none" stroke-width="12" stroke-linecap="round">
+                  <path d="M 18 70 A 52 52 0 0 1 33.2 33.2" stroke="#EF4444" />
+                  <path d="M 33.2 33.2 A 52 52 0 0 1 70 18" stroke="#F97316" />
+                  <path d="M 70 18 A 52 52 0 0 1 106.8 33.2" stroke="#FACC15" />
+                  <path d="M 106.8 33.2 A 52 52 0 0 1 122 70" stroke="#10B981" />
+                </g>
+                <line x1="70" y1="70" x2="98" y2="38" stroke="#0F172A" stroke-width="3.5" stroke-linecap="round" />
+                <circle cx="70" cy="70" r="5" fill="#0F172A" />
+              </svg>
+              <div class="gauge-reading">98.6%</div>
+              <div class="gauge-state">Reliable Output</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="cockpit-dock">
+          <button class="dock-tab active">Telemetry</button>
+          <button class="dock-tab">Traces</button>
+          <button class="dock-tab">Evals</button>
+          <button class="dock-tab">Gateways</button>
+          <button class="dock-tab">Security</button>
+        </div>
+      </div>
+    </div>
+    <div class="bezel-stand"></div>
+  </section>
+
+  <!-- 5-Step Workflow Section -->
+  <section class="sec-steps" id="pipeline">
+    <div class="wrap">
+      <span class="sec-eyebrow">The Telemetry Lifecycle</span>
+      <h2 class="sec-title">From prompt to production in five stages</h2>
+      <p class="sec-desc">End-to-end reliability for complex multi-agent workflows.</p>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <h3 class="step-name">Ingest</h3>
+          <ul class="step-tools">
+            <li>• Auto-instrumentation</li>
+            <li>• OpenTelemetry SDK</li>
+            <li>• Zero-overhead hook</li>
+          </ul>
+        </div>
+
+        <div class="step-card is-low">
+          <div class="step-num">02</div>
+          <h3 class="step-name">Trace</h3>
+          <ul class="step-tools">
+            <li>• Full DAG execution</li>
+            <li>• Tool call tracking</li>
+            <li>• Token stream logs</li>
+          </ul>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <h3 class="step-name">Evaluate</h3>
+          <ul class="step-tools">
+            <li>• Groundedness checks</li>
+            <li>• Latency regression</li>
+            <li>• Drift detection</li>
+          </ul>
+        </div>
+
+        <div class="step-card is-low">
+          <div class="step-num">04</div>
+          <h3 class="step-name">Guard</h3>
+          <ul class="step-tools">
+            <li>• Rate limit firewalls</li>
+            <li>• Prompt injection blocks</li>
+            <li>• PII scrubbing</li>
+          </ul>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">05</div>
+          <h3 class="step-name">Optimize</h3>
+          <ul class="step-tools">
+            <li>• Model routing</li>
+            <li>• Semantic caching</li>
+            <li>• Cost reduction</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Animated Pipeline Flow -->
+  <section class="flow-sec">
+    <div class="wrap">
+      <span class="sec-eyebrow">Seamless Ingestion</span>
+      <h2 class="sec-title">Connect your entire agent ecosystem</h2>
+      <p class="sec-desc">Plug in any framework and inspect every run with zero code modifications.</p>
+
+      <div class="flow-box">
+        <div class="flow-columns">
+          <div class="flow-col-inputs">
+            <div class="flow-pill">LangChain</div>
+            <div class="flow-pill">LlamaIndex</div>
+            <div class="flow-pill">AutoGen / CrewAI</div>
+          </div>
+
+          <div class="flow-hub">CORE</div>
+
+          <div class="flow-col-outputs">
+            <div class="flow-pill">Latency Traces</div>
+            <div class="flow-pill">Automated Evals</div>
+            <div class="flow-pill">Cost Sentinels</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="pricing-sec" id="pricing">
+    <div class="wrap">
+      <span class="sec-eyebrow">Predictable Pricing</span>
+      <h2 class="sec-title">Scale from prototype to enterprise</h2>
+      <p class="sec-desc">Choose a plan that fits your execution volume.</p>
+
+      <div class="toggle-row">
+        <span style="font-size: 0.92rem; font-weight: 600;">Monthly</span>
+        <div class="toggle-sw" id="priceSwitch">
+          <div class="toggle-knob"></div>
+        </div>
+        <span style="font-size: 0.92rem; font-weight: 600;">Yearly</span>
+        <span class="save-pill">Save 20%</span>
+      </div>
+
+      <div class="pricing-grid">
+        <div class="price-card" data-monthly="$0" data-yearly="$0">
+          <h3 class="price-name">Developer</h3>
+          <div class="price-amt">$0</div>
+          <div class="price-sub">Free up to 100k tokens/mo</div>
+          <ul class="price-features">
+            <li>1 Project, 2 Agents</li>
+            <li>3-Day Trace Retention</li>
+            <li>Standard Community Support</li>
+          </ul>
+          <a href="#signup" class="price-cta">Start Free</a>
+        </div>
+
+        <div class="price-card" data-monthly="$49" data-yearly="$39">
+          <h3 class="price-name">Startup</h3>
+          <div class="price-amt rate-val">$39</div>
+          <div class="price-sub">Per seat / billed annually</div>
+          <ul class="price-features">
+            <li>Up to 10M tokens/mo</li>
+            <li>30-Day Trace History</li>
+            <li>Automated Evals Suite</li>
+          </ul>
+          <a href="#signup" class="price-cta">Choose Startup</a>
+        </div>
+
+        <div class="price-card is-popular" data-monthly="$149" data-yearly="$119">
+          <div class="pop-ribbon">Most Popular</div>
+          <h3 class="price-name">Scale</h3>
+          <div class="price-amt rate-val">$119</div>
+          <div class="price-sub">Per seat / billed annually</div>
+          <ul class="price-features">
+            <li>Unlimited Traces &amp; Spans</li>
+            <li>Custom Guardrails &amp; Firewalls</li>
+            <li>Dedicated Slack Support</li>
+          </ul>
+          <a href="#signup" class="price-cta">Choose Scale</a>
+        </div>
+
+        <div class="price-card" data-monthly="Custom" data-yearly="Custom">
+          <h3 class="price-name">Enterprise</h3>
+          <div class="price-amt">Custom</div>
+          <div class="price-sub">Self-hosted or Private VPC</div>
+          <ul class="price-features">
+            <li>Unlimited Token Ingestion</li>
+            <li>99.99% Uptime SLA Guarantee</li>
+            <li>HIPAA &amp; SOC-2 Type II Certified</li>
+          </ul>
+          <a href="#signup" class="price-cta">Contact Sales</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="ftr">
+    <div class="wrap">
+      <div class="ftr-grid">
+        <div>
+          <span class="logo-text" style="color: #FFF;"><span style="color: #818CF8;">Trace</span>Pulse</span>
+          <p style="margin-top: 12px; line-height: 1.7;">Observability and runtime governance engineered for autonomous AI agents.</p>
+        </div>
+        <div>
+          <h4>Platform</h4>
+          <ul><li><a href="#">Tracing Engine</a></li><li><a href="#">Evals Suite</a></li><li><a href="#">Cost Sentinel</a></li></ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul><li><a href="#">About</a></li><li><a href="#">Careers</a></li><li><a href="#">Blog</a></li></ul>
+        </div>
+        <div>
+          <h4>Security</h4>
+          <ul><li><a href="#">Privacy Policy</a></li><li><a href="#">Terms of Service</a></li><li><a href="#">SOC-2 Compliance</a></li></ul>
+        </div>
+      </div>
+      <p style="font-size: 0.78rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 20px;">
+        © 2026 TracePulse Technologies Inc. All rights reserved.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // Sticky header
+    const nav = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('is-stuck', window.scrollY > 40);
+    });
+
+    // Pricing switch
+    const sw = document.getElementById('priceSwitch');
+    let isYearly = true;
+    sw.addEventListener('click', () => {
+      isYearly = !isYearly;
+      sw.classList.toggle('is-monthly', !isYearly);
+      document.querySelectorAll('.price-card').forEach(card => {
+        const rateEl = card.querySelector('.rate-val');
+        if (rateEl) {
+          rateEl.textContent = isYearly ? card.dataset.yearly : card.dataset.monthly;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

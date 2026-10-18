@@ -1,0 +1,109 @@
+<!--
+  Reusable Kinetic SVG Widgets & Layout Snippets
+  Copy and paste these widgets directly into any web project.
+-->
+
+<!-- 1. Semi-Circle Status / Sentiment Gauge -->
+<div class="gauge-container" style="text-align: center; width: 160px; margin: 0 auto;">
+  <svg viewBox="0 0 140 82" style="width: 100%; height: auto; display: block;" aria-label="Status Gauge">
+    <g fill="none" stroke-width="12" stroke-linecap="round">
+      <!-- Zone 1: Critical / Low (Red) -->
+      <path d="M 18 70 A 52 52 0 0 1 33.2 33.2" stroke="#EF4444" />
+      <!-- Zone 2: Warning (Orange) -->
+      <path d="M 33.2 33.2 A 52 52 0 0 1 70 18" stroke="#F97316" />
+      <!-- Zone 3: Neutral (Yellow) -->
+      <path d="M 70 18 A 52 52 0 0 1 106.8 33.2" stroke="#FACC15" />
+      <!-- Zone 4: Optimal / Bullish (Green) -->
+      <path d="M 106.8 33.2 A 52 52 0 0 1 122 70" stroke="#22C55E" />
+    </g>
+    <!-- Indicator Needle (Adjust x2, y2 based on score) -->
+    <line x1="70" y1="70" x2="94" y2="34" stroke="#1E2340" stroke-width="3.5" stroke-linecap="round" />
+    <circle cx="70" cy="70" r="5" fill="#1E2340" />
+  </svg>
+  <div style="font-size: 1.3rem; font-weight: 800; color: #1E2340; margin-top: 4px;">65.3</div>
+  <div style="font-size: 0.75rem; font-weight: 700; color: #22C55E; text-transform: uppercase;">Optimal</div>
+</div>
+
+<!-- 2. Animated Traveling Pulse Integration Wires -->
+<svg viewBox="0 0 1200 620" preserveAspectRatio="none" style="width: 100%; height: auto;" aria-hidden="true">
+  <defs>
+    <style>
+      .fw-base { fill: none; stroke: #E9ECF4; stroke-width: 2px; }
+      .fw-anim { fill: none; stroke: #9B63D3; stroke-width: 3.5px; stroke-linecap: round; stroke-dasharray: 14 86; animation: flowDash 3s linear infinite; }
+      @keyframes flowDash { 0% { stroke-dashoffset: 100; } 100% { stroke-dashoffset: 0; } }
+    </style>
+  </defs>
+
+  <!-- Left Input 1 to Center Hub (600, 310) -->
+  <g>
+    <path class="fw-base" d="M 200 62 C 300 62 500 310 600 310" pathLength="100" />
+    <path class="fw-anim" d="M 200 62 C 300 62 500 310 600 310" pathLength="100" style="animation-delay: 0s" />
+  </g>
+
+  <!-- Left Input 2 to Center Hub -->
+  <g>
+    <path class="fw-base" d="M 200 310 C 350 310 450 310 600 310" pathLength="100" />
+    <path class="fw-anim" d="M 200 310 C 350 310 450 310 600 310" pathLength="100" style="animation-delay: 1.2s" />
+  </g>
+
+  <!-- Left Input 3 to Center Hub -->
+  <g>
+    <path class="fw-base" d="M 200 558 C 300 558 500 310 600 310" pathLength="100" />
+    <path class="fw-anim" d="M 200 558 C 300 558 500 310 600 310" pathLength="100" style="animation-delay: 0.6s" />
+  </g>
+
+  <!-- Center Hub to Right Output 1 -->
+  <g>
+    <path class="fw-base" d="M 600 310 C 700 310 900 62 1000 62" pathLength="100" />
+    <path class="fw-anim" d="M 600 310 C 700 310 900 62 1000 62" pathLength="100" style="animation-delay: 2.1s" />
+  </g>
+
+  <!-- Center Hub to Right Output 2 -->
+  <g>
+    <path class="fw-base" d="M 600 310 C 700 310 900 558 1000 558" pathLength="100" />
+    <path class="fw-anim" d="M 600 310 C 700 310 900 558 1000 558" pathLength="100" style="animation-delay: 1.6s" />
+  </g>
+</svg>
+
+<!-- 3. Sweeping Sonar / Radar Scanner -->
+<svg viewBox="0 0 1000 640" style="width: 100%; height: auto; max-width: 800px; margin: 0 auto; display: block;" aria-hidden="true">
+  <defs>
+    <radialGradient id="rdrHub">
+      <stop offset="0.7" stop-color="#FFFFFF" />
+      <stop offset="1" stop-color="#F4EEFC" />
+    </radialGradient>
+    <linearGradient id="rdrSweep" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9B63D3" stop-opacity="0.35" />
+      <stop offset="1" stop-color="#9B63D3" stop-opacity="0" />
+    </linearGradient>
+    <style>
+      .rdr-sweep-beam { transform-origin: 500px 320px; animation: rdrRot 6s linear infinite; }
+      @keyframes rdrRot { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      .rdr-pulse-ring { transform-origin: 500px 320px; animation: rdrWave 3s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+      @keyframes rdrWave { 0% { transform: scale(0.2); opacity: 0.9; } 100% { transform: scale(1); opacity: 0; } }
+      .rdr-ping-dot { animation: dotBlink 2.4s ease-in-out infinite; }
+      @keyframes dotBlink { 0%, 100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.3); } }
+    </style>
+  </defs>
+
+  <!-- Concentric Rings -->
+  <circle cx="500" cy="320" r="290" fill="#F3EDFB" stroke="#E0D4F2" />
+  <circle cx="500" cy="320" r="235" fill="#EEE5F9" stroke="#E0D4F2" />
+  <circle cx="500" cy="320" r="180" fill="#E9DEF6" stroke="#E0D4F2" />
+  <circle cx="500" cy="320" r="125" fill="#E3D6F4" stroke="#E0D4F2" />
+
+  <!-- Sweeping Gradient Beam -->
+  <path class="rdr-sweep-beam" d="M 500 320 L 382 55 A 290 290 0 0 1 618 55 Z" fill="url(#rdrSweep)" />
+
+  <!-- Expanding Ripple Ring -->
+  <circle class="rdr-pulse-ring" cx="500" cy="320" r="290" fill="none" stroke="#C9A9EE" stroke-width="2" />
+
+  <!-- Blip Contacts -->
+  <circle class="rdr-ping-dot" cx="430" cy="150" r="5" fill="#9B63D3" style="animation-delay: 0s" />
+  <circle class="rdr-ping-dot" cx="622" cy="212" r="4.5" fill="#9B63D3" style="animation-delay: 1.2s" />
+  <circle class="rdr-ping-dot" cx="395" cy="236" r="5" fill="#9B63D3" style="animation-delay: 1.8s" />
+
+  <!-- Center Hub -->
+  <circle cx="500" cy="320" r="80" fill="url(#rdrHub)" stroke="#E0D4F2" />
+  <text x="500" y="326" text-anchor="middle" font-family="'Inter', sans-serif" font-weight="700" font-size="16" fill="#1E2340">Active</text>
+</svg>
