@@ -1,15 +1,13 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # ⚡ JARVIS-UI — Universal Animated Installer
-# Compatible with macOS, Linux, Ubuntu, WSL
-# Supports both:
-# 1. curl -fsSL https://raw.githubusercontent.com/thedileepkumar-dk/Jarvis-UI/main/install.sh | bash
-# 2. Local execution: bash install.sh
+# Default destination for all platforms (macOS, Linux, WSL): ~/.jarvis-ui
 # ==============================================================================
 
 set -e
 
 REPO_URL="https://github.com/thedileepkumar-dk/Jarvis-UI.git"
+DEFAULT_INSTALL_DIR="${HOME}/.jarvis-ui"
 SKILL_NAME="Jarvis-UI"
 
 # Terminal Formatting
@@ -34,21 +32,15 @@ hide_cursor() { if $IS_TTY; then printf "${ESC}[?25l"; fi; }
 show_cursor() { if $IS_TTY; then printf "${ESC}[?25h"; fi; }
 trap show_cursor EXIT
 
-# Universal Source Directory Resolver
-# Checks for existing installation, ~/Documents (macOS), or standard ~/.jarvis-ui (Linux/WSL)
+# Universal Source Directory Resolver (defaults to ~/.jarvis-ui across all OS)
 if [ -n "${BASH_SOURCE[0]}" ] && [ -f "${BASH_SOURCE[0]}" ]; then
   SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-else
-  # Piped from curl: determine best destination path for current user
-  if [ -d "${HOME}/Documents/Jarvis-UI/.git" ]; then
-    SOURCE_DIR="${HOME}/Documents/Jarvis-UI"
-  elif [ -d "${HOME}/.jarvis-ui/.git" ]; then
-    SOURCE_DIR="${HOME}/.jarvis-ui"
-  elif [ -d "${HOME}/Documents" ]; then
-    SOURCE_DIR="${HOME}/Documents/Jarvis-UI"
-  else
-    SOURCE_DIR="${HOME}/.jarvis-ui"
+  if [ "${SOURCE_DIR}" != "${DEFAULT_INSTALL_DIR}" ] && [ ! -e "${DEFAULT_INSTALL_DIR}" ]; then
+    ln -sfn "${SOURCE_DIR}" "${DEFAULT_INSTALL_DIR}"
   fi
+else
+  # Piped from curl: install into ~/.jarvis-ui across all platforms (macOS, Linux, WSL)
+  SOURCE_DIR="${DEFAULT_INSTALL_DIR}"
 
   if [ ! -d "${SOURCE_DIR}/.git" ]; then
     mkdir -p "$(dirname "${SOURCE_DIR}")"
@@ -58,8 +50,14 @@ else
   fi
 fi
 
+# Always link agents through the universal ~/.jarvis-ui root
+LINK_TARGET="${DEFAULT_INSTALL_DIR}"
+if [ ! -e "${LINK_TARGET}" ]; then
+  LINK_TARGET="${SOURCE_DIR}"
+fi
+
 # Tilde-abbreviated path for universal display across all OS environments
-DISPLAY_SOURCE="${SOURCE_DIR/#$HOME/~}"
+DISPLAY_SOURCE="~${LINK_TARGET#$HOME}"
 
 # Animated Spinner Helper
 spin_task() {
@@ -120,25 +118,25 @@ print_header() {
 do_codex() {
   mkdir -p "${HOME}/.codex/skills"
   rm -rf "${HOME}/.codex/skills/${SKILL_NAME}"
-  ln -s "${SOURCE_DIR}" "${HOME}/.codex/skills/${SKILL_NAME}"
+  ln -sfn "${LINK_TARGET}" "${HOME}/.codex/skills/${SKILL_NAME}"
 }
 
 do_claude() {
   mkdir -p "${HOME}/.claude/skills"
   rm -rf "${HOME}/.claude/skills/${SKILL_NAME}"
-  ln -s "${SOURCE_DIR}" "${HOME}/.claude/skills/${SKILL_NAME}"
+  ln -sfn "${LINK_TARGET}" "${HOME}/.claude/skills/${SKILL_NAME}"
 }
 
 do_opencode() {
   mkdir -p "${HOME}/.config/opencode/skills"
   rm -rf "${HOME}/.config/opencode/skills/${SKILL_NAME}"
-  ln -s "${SOURCE_DIR}" "${HOME}/.config/opencode/skills/${SKILL_NAME}"
+  ln -sfn "${LINK_TARGET}" "${HOME}/.config/opencode/skills/${SKILL_NAME}"
 }
 
 do_gemini() {
   mkdir -p "${HOME}/.gemini/config/skills"
   rm -rf "${HOME}/.gemini/config/skills/${SKILL_NAME}"
-  ln -s "${SOURCE_DIR}" "${HOME}/.gemini/config/skills/${SKILL_NAME}"
+  ln -sfn "${LINK_TARGET}" "${HOME}/.gemini/config/skills/${SKILL_NAME}"
 }
 
 do_cursor() {
@@ -149,7 +147,7 @@ description: Jarvis-UI Kinetic Frontend Framework. Apply when building animated,
 globs: **/*.{html,css,js,jsx,ts,tsx,vue,svelte}
 ---
 Always follow the Jarvis-UI skill guidelines located at:
-${DISPLAY_SOURCE}/SKILL.md
+~/.jarvis-ui/SKILL.md
 
 Key Architecture Rules:
 1. Volumetric lighting and atmospheric glow plumes (no plain flat backgrounds).
@@ -165,7 +163,7 @@ do_cli() {
   mkdir -p "${HOME}/.local/bin"
   cat << SCRIPT > "${HOME}/.local/bin/jarvis-ui-install"
 #!/usr/bin/env bash
-bash "${SOURCE_DIR}/install.sh" "\$@"
+bash "${LINK_TARGET}/install.sh" "\$@"
 SCRIPT
   chmod +x "${HOME}/.local/bin/jarvis-ui-install"
 }

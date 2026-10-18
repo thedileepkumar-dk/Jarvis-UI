@@ -33,12 +33,13 @@ curl -fsSL https://raw.githubusercontent.com/thedileepkumar-dk/Jarvis-UI/main/in
 
 | Environment | Configured Directory | Auto-Synced |
 | :--- | :--- | :---: |
-| **Codex** | `~/.codex/skills/Jarvis-UI` | ✅ Yes (Symlinked) |
-| **Claude** (Claude Code / Desktop) | `~/.claude/skills/Jarvis-UI` | ✅ Yes (Symlinked) |
-| **OpenCode** | `~/.config/opencode/skills/Jarvis-UI` | ✅ Yes (Symlinked) |
-| **Antigravity / Gemini** | `~/.gemini/config/skills/Jarvis-UI` | ✅ Yes (Symlinked) |
-| **Cursor** | `~/.cursor/rules/Jarvis-UI.mdc` | ✅ Yes (Rule generated) |
-| **Any Current Project** | `your-project/.agents/skills/Jarvis-UI` | `bash install.sh --project .` |
+| **Universal Core (macOS, Linux, WSL)** | `~/.jarvis-ui` | ⚡ Master Framework Root |
+| **Codex** | `~/.codex/skills/Jarvis-UI` | ✅ Linked to `~/.jarvis-ui` |
+| **Claude** (Claude Code / Desktop) | `~/.claude/skills/Jarvis-UI` | ✅ Linked to `~/.jarvis-ui` |
+| **OpenCode** | `~/.config/opencode/skills/Jarvis-UI` | ✅ Linked to `~/.jarvis-ui` |
+| **Antigravity / Gemini** | `~/.gemini/config/skills/Jarvis-UI` | ✅ Linked to `~/.jarvis-ui` |
+| **Cursor** | `~/.cursor/rules/Jarvis-UI.mdc` | ✅ Auto-configured rule |
+| **Any Specific Project** | `your-project/.agents/skills/Jarvis-UI` | `bash ~/.jarvis-ui/install.sh --project .` |
 
 ---
 
